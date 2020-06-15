@@ -31,15 +31,23 @@ io.on('connection', (client) => {
 
         // Se utiliza para actualizar la lista en caso de reconexión
         client.broadcast.to(data.room).emit('listaChat', user.getUsersByRoom(data.room));
+
+        // Informa de un usuario nuevo
+        client.broadcast.to(data.room).emit('crearMensaje', createMessage('Add', `${ data.name } se unió.`));
+
         callback(user.getUsersByRoom(data.room));
     });
 
 
     // Escuchar una mensaje del usuario y retransmitir a todos los usuarios
-    client.on('crearMensaje', (data) => {
+    client.on('crearMensaje', (data, callback) => {
 
         let person = user.getUser(client.id);
-        client.broadcast.to(person.room).emit('crearMensaje', createMessage(person.name, data.msg));
+        let message = createMessage(person.name, data.msg);
+
+        client.broadcast.to(person.room).emit('crearMensaje', message);
+
+        callback(message);
     });
 
 
@@ -56,7 +64,7 @@ io.on('connection', (client) => {
         let userDeleted = user.deleteUser(client.id);
 
         // Informa de la desconexión de un usuario
-        client.broadcast.to(userDeleted.room).emit('crearMensaje', createMessage('admin', `${ userDeleted.name } salió.`));
+        client.broadcast.to(userDeleted.room).emit('crearMensaje', createMessage('Deleted', `${ userDeleted.name } salió.`));
         // Actualiza la lista de usuarios conectados
         client.broadcast.to(userDeleted.room).emit('listaChat', user.getUsersByRoom(userDeleted.room));
     });

@@ -27,7 +27,7 @@ socket.on('connect', function() {
     console.log('Conectado al servidor');
 
     socket.emit('entrarChat', newUser, function(resp) {
-        console.log(resp);
+        renderizarUsuarios(resp);
     });
 
 });
@@ -35,13 +35,14 @@ socket.on('connect', function() {
 
 // Recibe un mensaje personalizado
 socket.on('crearMensaje', function(data) {
-    console.log(data);
+    renderizarMensajes(data, false);
+    scrollBottom();
 });
 
 
 // Verifica la lista de usuarios conectados
 socket.on('listaChat', function(data) {
-    console.log(data);
+    renderizarUsuarios(data);
 });
 
 
